@@ -1,0 +1,43 @@
+name: Setuptools Test
+run-name: Build
+
+env:
+  REGISTRY: "ghcr.io"
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.vscode/**'
+      - 'docs/**'
+      - 'README.md'
+      - '.gitignore'
+  workflow_dispatch: # allows for manual invocation
+
+jobs:
+
+  Test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+    steps:
+      - uses: 'actions/checkout@v4.1.1'
+      - name: Set up Python
+        id: setup_python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: pre-commit/action@v3.0.1
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+          virtualenvs-in-project: false
+          installer-parallel: true
+      - name: Install
+        run: |
+          poetry install --no-interaction --no-root
+      - name: Run
+        run: |
+          poetry run python main.py
